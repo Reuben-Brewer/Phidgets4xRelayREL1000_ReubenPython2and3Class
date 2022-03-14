@@ -447,11 +447,11 @@ if __name__ == '__main__':
     #################################################
     #################################################
 
-    #################################################
+    ################################################# THIS IS THE EXIT ROUTINE!
     #################################################
     print("Exiting main program 'test_program_for_Phidgets4xRelayREL1000_ReubenPython2and3Class.")
 
-    ################################################# THIS IS THE EXIT ROUTINE!
+    #################################################
     if RELAYS_OPEN_FLAG == 1:
         Phidgets4xRelayREL1000_ReubenPython2and3ClassObject.ExitProgram_Callback()
     #################################################
