@@ -6,7 +6,7 @@ reuben.brewer@gmail.com
 www.reubotics.com
 
 Apache 2 License
-Software Revision C, 11/12/2021
+Software Revision D, 03/13/2022
 
 Verified working on: Python 2.7, 3.8 for Windows 8.1, 10 64-bit and Raspberry Pi Buster (no Mac testing yet).
 '''
@@ -46,6 +46,14 @@ else:
     from future.builtins import input as input
 ############### #"sudo pip3 install future" (Python 3) AND "sudo pip install future" (Python 2)
 
+###############
+import platform
+if platform.system() == "Windows":
+    import ctypes
+    winmm = ctypes.WinDLL('winmm')
+    winmm.timeBeginPeriod(1) #Set minimum timer resolution to 1ms so that time.sleep(0.001) behaves properly.
+###############
+
 ###########################################################
 ###########################################################
 #To install Phidget22, enter folder "Phidget22Python_1.0.0.20190107\Phidget22Python" and type "python setup.py install"
@@ -70,6 +78,22 @@ class Phidgets4xRelayREL1000_ReubenPython2and3Class(Frame): #Subclass the Tkinte
         self.EnableInternal_MyPrint_Flag = 0
         self.MainThread_still_running_flag = 0
 
+        #########################################################
+        self.CurrentTime_CalculatedFromMainThread = -11111.0
+        self.StartingTime_CalculatedFromMainThread = -11111.0
+        self.LastTime_CalculatedFromMainThread = -11111.0
+        self.DataStreamingFrequency_CalculatedFromMainThread = -11111.0
+        self.DataStreamingDeltaT_CalculatedFromMainThread = -11111.0
+        #########################################################
+
+        #########################################################
+        self.DetectedDeviceName = "default"
+        self.DetectedDeviceID = "default"
+        self.DetectedDeviceVersion = "default"
+        self.VINT_DetectedSerialNumber = "default"
+        self.VINT_DetectedPortNumber = -1
+        #########################################################
+
         self.DigitalOutputsList_PhidgetsDigitalOutputObjects = list()
 
         self.NumberOfDigitalOutputs = 4
@@ -81,7 +105,9 @@ class Phidgets4xRelayREL1000_ReubenPython2and3Class(Frame): #Subclass the Tkinte
         self.DigitalOutputsList_State_NeedsToBeChangedFlag = [1] * self.NumberOfDigitalOutputs
         self.DigitalOutputsList_State_ToBeSet = [0] * self.NumberOfDigitalOutputs
 
-        self.MostRecentDataDict = dict()
+        self.MostRecentDataDict = dict([("DigitalOutputsList_State", self.DigitalOutputsList_State),
+                                        ("DigitalOutputsList_ErrorCallbackFiredFlag", self.DigitalOutputsList_ErrorCallbackFiredFlag),
+                                        ("Time", self.CurrentTime_CalculatedFromMainThread)])
 
         ##########################################
         ##########################################
@@ -229,6 +255,15 @@ class Phidgets4xRelayREL1000_ReubenPython2and3Class(Frame): #Subclass the Tkinte
             print("GUI_COLUMNSPAN = " + str(self.GUI_COLUMNSPAN))
             ##########################################
 
+            ##########################################
+            if "GUI_STICKY" in self.GUIparametersDict:
+                self.GUI_STICKY = str(self.GUIparametersDict["GUI_STICKY"])
+            else:
+                self.GUI_STICKY = "w"
+
+            print("GUI_STICKY = " + str(self.GUI_STICKY))
+            ##########################################
+
         else:
             self.GUIparametersDict = dict()
             self.USE_GUI_FLAG = 0
@@ -323,19 +358,6 @@ class Phidgets4xRelayREL1000_ReubenPython2and3Class(Frame): #Subclass the Tkinte
         #########################################################
 
         #########################################################
-        self.CurrentTime_CalculatedFromMainThread = -11111.0
-        self.LastTime_CalculatedFromMainThread = -11111.0
-        self.StartingTime_CalculatedFromMainThread = -11111.0
-        self.DataStreamingFrequency_CalculatedFromMainThread = -11111.0
-        self.DataStreamingDeltaT_CalculatedFromMainThread = -11111.0
-
-        self.DetectedDeviceName = "default"
-        self.DetectedDeviceID = "default"
-        self.DetectedDeviceVersion = "default"
-        self.VINT_DetectedSerialNumber = "default"
-        #########################################################
-
-        #########################################################
         #########################################################
 
         #########################################################
@@ -425,6 +447,15 @@ class Phidgets4xRelayREL1000_ReubenPython2and3Class(Frame): #Subclass the Tkinte
 
             #########################################################
             try:
+                self.VINT_DetectedPortNumber = self.DigitalOutput0object.getHubPort()
+                print("VINT_DetectedPortNumber: " + str(self.VINT_DetectedPortNumber))
+
+            except PhidgetException as e:
+                print("Failed to call 'getPortNumber', Phidget Exception %i: %s" % (e.code, e.details))
+            #########################################################
+
+            #########################################################
+            try:
                 self.DetectedDeviceID = self.DigitalOutput0object.getDeviceID()
                 print("DetectedDeviceID: " + str(self.DetectedDeviceID))
 
@@ -452,7 +483,14 @@ class Phidgets4xRelayREL1000_ReubenPython2and3Class(Frame): #Subclass the Tkinte
 
             #########################################################
             if self.VINT_DetectedSerialNumber != self.VINT_DesiredSerialNumber:
-                print("The desired Serial Number (" + str(self.VINT_DesiredSerialNumber) + ") does not match the detected serial number (" + str(self.VINT_DetectedSerialNumber) + ").")
+                print("The desired VINT Serial Number (" + str(self.VINT_DesiredSerialNumber) + ") does not match the detected VINT Serial Number (" + str(self.VINT_DetectedSerialNumber) + ").")
+                input("Press any key (and enter) to exit.")
+                sys.exit()
+            #########################################################
+
+            #########################################################
+            if self.VINT_DetectedPortNumber != self.VINT_DesiredPortNumber:
+                print("The desired VINT Hub Port (" + str(self.VINT_DesiredPortNumber) + ") does not match the detected VINT Hub Port (" + str(self.VINT_DetectedPortNumber) + ").")
                 input("Press any key (and enter) to exit.")
                 sys.exit()
             #########################################################
@@ -740,6 +778,49 @@ class Phidgets4xRelayREL1000_ReubenPython2and3Class(Frame): #Subclass the Tkinte
 
     ##########################################################################################################
     ##########################################################################################################
+    def TimerCallbackFunctionWithFunctionAsArgument_SingleShot(self, CallbackAfterDeltaTseconds, FunctionToCall, ArgumentListToFunction):
+
+        TimerObject = threading.Timer(CallbackAfterDeltaTseconds, FunctionToCall, ArgumentListToFunction) #Must pass arguments to callback-function via list as the third argument to Timer call
+        TimerObject.daemon = True #Without the daemon=True, this recursive function won't terminate when the main program does.
+        TimerObject.start()
+
+        #print("TimerCallbackFunctionWithFunctionAsArgument_SingleShot Event Fired with ArgumentListToFunction: " + str(ArgumentListToFunction))
+    ##########################################################################################################
+    ##########################################################################################################
+
+    ##########################################################################################################
+    ##########################################################################################################
+    def SetRelayStateWithToggleBackAfterDeltaT(self, DigitalOutputChannel, State_ToBeSet, DeltaTsec = -1):
+
+        try:
+            if DigitalOutputChannel in range(0, self.NumberOfDigitalOutputs):
+                if State_ToBeSet in [0, 1]:
+                    self.DigitalOutputsList_State_ToBeSet[DigitalOutputChannel] = State_ToBeSet
+                    self.DigitalOutputsList_State_NeedsToBeChangedFlag[DigitalOutputChannel] = 1
+
+                    ##############
+                    if DeltaTsec > 0:
+                        if State_ToBeSet == 0:
+                            Callback_State_ToBeSet = 1
+                        else:
+                            Callback_State_ToBeSet = 0
+
+                        self.TimerCallbackFunctionWithFunctionAsArgument_SingleShot(DeltaTsec, self.SetRelayState, [DigitalOutputChannel, Callback_State_ToBeSet])
+                    ##############
+
+                else:
+                    print("SetRelayState ERROR, State_ToBeSet must be 0 or 1.")
+            else:
+                print("SetRelayState ERROR, DigitalOutputChannel must be in " + str(list(range(0, self.NumberOfDigitalOutputs))) + ".")
+
+        except:
+            exceptions = sys.exc_info()[0]
+            print("SetRelayStateWithToggleBackAfterDeltaT __init__: Exceptions: %s" % exceptions, 0)
+    ##########################################################################################################
+    ##########################################################################################################
+
+    ##########################################################################################################
+    ##########################################################################################################
     def SetRelayState(self, DigitalOutputChannel, State_ToBeSet):
 
         if DigitalOutputChannel in range(0, self.NumberOfDigitalOutputs):
@@ -750,7 +831,6 @@ class Phidgets4xRelayREL1000_ReubenPython2and3Class(Frame): #Subclass the Tkinte
                 print("SetRelayState ERROR, State_ToBeSet must be 0 or 1.")
         else:
             print("SetRelayState ERROR, DigitalOutputChannel must be in " + str(list(range(0, self.NumberOfDigitalOutputs))) + ".")
-
     ##########################################################################################################
     ##########################################################################################################
 
@@ -783,8 +863,6 @@ class Phidgets4xRelayREL1000_ReubenPython2and3Class(Frame): #Subclass the Tkinte
             traceback.print_exc()
     ##########################################################################################################
     ##########################################################################################################
-
-
 
     ##########################################################################################################
     ########################################################################################################## unicorn
@@ -897,7 +975,8 @@ class Phidgets4xRelayREL1000_ReubenPython2and3Class(Frame): #Subclass the Tkinte
                           padx = self.GUI_PADX,
                           pady = self.GUI_PADY,
                           rowspan = self.GUI_ROWSPAN,
-                          columnspan= self.GUI_COLUMNSPAN)
+                          columnspan= self.GUI_COLUMNSPAN,
+                          sticky = self.GUI_STICKY)
         ###################################################
 
         ###################################################
@@ -915,6 +994,7 @@ class Phidgets4xRelayREL1000_ReubenPython2and3Class(Frame): #Subclass the Tkinte
         self.device_info_label["text"] = self.NameToDisplay_UserSet + \
                                         "\nDevice Name: " + self.DetectedDeviceName + \
                                         "\nDevice Serial Number: " + str(self.VINT_DetectedSerialNumber) + \
+                                        "\nDevice Port Number: " + str(self.VINT_DetectedPortNumber) + \
                                         "\nDevice ID: " + str(self.DetectedDeviceID) + \
                                         "\nDevice Version: " + str(self.DetectedDeviceVersion)
 
