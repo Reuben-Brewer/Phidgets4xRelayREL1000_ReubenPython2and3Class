@@ -1005,8 +1005,6 @@ class Phidgets4xRelayREL1000_ReubenPython2and3Class(Frame): #Subclass the Tkinte
         self.TKinter_LightRedColor = '#%02x%02x%02x' % (255, 150, 150) #RGB
         self.TKinter_LightYellowColor = '#%02x%02x%02x' % (255, 255, 150)  # RGB
         self.TKinter_DefaultGrayColor = '#%02x%02x%02x' % (240, 240, 240)  # RGB
-        self.TkinterScaleWidth = 10
-        self.TkinterScaleLength = 250
         ###################################################
 
         #################################################
