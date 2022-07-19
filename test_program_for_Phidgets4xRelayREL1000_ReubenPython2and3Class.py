@@ -6,22 +6,29 @@ reuben.brewer@gmail.com,
 www.reubotics.com
 
 Apache 2 License
-Software Revision D, 03/13/2022
+Software Revision E, 07/18/2022
 
 Verified working on: Python 2.7, 3.8 for Windows 8.1, 10 64-bit and Raspberry Pi Buster (no Mac testing yet).
 '''
 
 __author__ = 'reuben.brewer'
 
+#########################################################
 from Phidgets4xRelayREL1000_ReubenPython2and3Class import *
 from MyPrint_ReubenPython2and3Class import *
+#########################################################
 
-import os, sys, platform
-import time, datetime
+#########################################################
+import os
+import sys
+import platform
+import time
+import datetime
 import threading
 import collections
+#########################################################
 
-###############
+#########################################################
 if sys.version_info[0] < 3:
     from Tkinter import * #Python 2
     import tkFont
@@ -30,22 +37,22 @@ else:
     from tkinter import * #Python 3
     import tkinter.font as tkFont #Python 3
     from tkinter import ttk
-###############
+#########################################################
 
-###############
+#########################################################
 if sys.version_info[0] < 3:
     from builtins import raw_input as input
 else:
     from future.builtins import input as input #"sudo pip3 install future" (Python 3) AND "sudo pip install future" (Python 2)
-###############
+#########################################################
 
-###############
+#########################################################
 import platform
 if platform.system() == "Windows":
     import ctypes
     winmm = ctypes.WinDLL('winmm')
     winmm.timeBeginPeriod(1) #Set minimum timer resolution to 1ms so that time.sleep(0.001) behaves properly.
-###############
+#########################################################
 
 ###########################################################################################################
 ##########################################################################################################
@@ -122,7 +129,12 @@ def ExitProgram_Callback():
 ##########################################################################################################
 def GUI_Thread():
     global root
+    global root_Xpos
+    global root_Ypos
+    global root_width
+    global root_height
     global GUI_RootAfterCallbackInterval_Milliseconds
+    global USE_TABS_IN_GUI_FLAG
 
     ################################################# KEY GUI LINE
     #################################################
@@ -131,12 +143,51 @@ def GUI_Thread():
     #################################################
 
     #################################################
-    TestButton = Button(root, text='Test Button', state="normal", width=20, command=lambda i=1: TestButtonResponse())
+    #################################################
+    global TabControlObject
+    global Tab_MainControls
+    global Tab_RELAYS
+    global Tab_MyPrint
+
+    if USE_TABS_IN_GUI_FLAG == 1:
+        #################################################
+        TabControlObject = ttk.Notebook(root)
+
+        Tab_RELAYS = ttk.Frame(TabControlObject)
+        TabControlObject.add(Tab_RELAYS, text='   RELAYS   ')
+
+        Tab_MainControls = ttk.Frame(TabControlObject)
+        TabControlObject.add(Tab_MainControls, text='   Main Controls   ')
+
+        Tab_MyPrint = ttk.Frame(TabControlObject)
+        TabControlObject.add(Tab_MyPrint, text='   MyPrint Terminal   ')
+
+        TabControlObject.pack(expand=1, fill="both")  # CANNOT MIX PACK AND GRID IN THE SAME FRAME/TAB, SO ALL .GRID'S MUST BE CONTAINED WITHIN THEIR OWN FRAME/TAB.
+
+        ############# #Set the tab header font
+        TabStyle = ttk.Style()
+        TabStyle.configure('TNotebook.Tab', font=('Helvetica', '12', 'bold'))
+        #############
+        #################################################
+    else:
+        #################################################
+        Tab_MainControls = root
+        Tab_RELAYS = root
+        Tab_MyPrint = root
+        #################################################
+
+    #################################################
+    #################################################
+
+    #################################################
+    TestButton = Button(Tab_MainControls, text='Test Button', state="normal", width=20, command=lambda i=1: TestButtonResponse())
     TestButton.grid(row=0, column=0, padx=5, pady=1)
     #################################################
 
     #################################################
     root.protocol("WM_DELETE_WINDOW", ExitProgram_Callback)  # Set the callback function for when the window's closed.
+    root.title("test_program_for_Phidgets4xRelayREL1000_ReubenPython2and3Class")
+    root.geometry('%dx%d+%d+%d' % (root_width, root_height, root_Xpos, root_Ypos)) # set the dimensions of the screen and where it is placed
     root.after(GUI_RootAfterCallbackInterval_Milliseconds, GUI_update_clock)
     root.mainloop()
     #################################################
@@ -182,6 +233,9 @@ if __name__ == '__main__':
     global USE_GUI_FLAG
     USE_GUI_FLAG = 1
 
+    global USE_TABS_IN_GUI_FLAG
+    USE_TABS_IN_GUI_FLAG = 1
+
     global USE_RELAYS_FLAG
     USE_RELAYS_FLAG = 1
 
@@ -215,7 +269,7 @@ if __name__ == '__main__':
 
     GUI_COLUMN_RELAYS = 0
     GUI_PADX_RELAYS = 1
-    GUI_PADY_RELAYS = 10
+    GUI_PADY_RELAYS = 1
     GUI_ROWSPAN_RELAYS = 1
     GUI_COLUMNSPAN_RELAYS = 1
 
@@ -229,7 +283,7 @@ if __name__ == '__main__':
 
     GUI_COLUMN_MYPRINT = 0
     GUI_PADX_MYPRINT = 1
-    GUI_PADY_MYPRINT = 10
+    GUI_PADY_MYPRINT = 1
     GUI_ROWSPAN_MYPRINT = 1
     GUI_COLUMNSPAN_MYPRINT = 1
     #################################################
@@ -246,6 +300,28 @@ if __name__ == '__main__':
     global StartingTime_MainLoopThread
     StartingTime_MainLoopThread = -11111.0
 
+    global root
+
+    global root_Xpos
+    root_Xpos = 900
+
+    global root_Ypos
+    root_Ypos = 0
+
+    global root_width
+    root_width = 1920 - root_Xpos
+
+    global root_height
+    root_height = 1020 - root_Ypos
+
+    global TabControlObject
+    global Tab_MainControls
+    global Tab_RELAYS
+    global Tab_MyPrint
+
+    global GUI_RootAfterCallbackInterval_Milliseconds
+    GUI_RootAfterCallbackInterval_Milliseconds = 30
+
     global CycleThroughRelayStatesForTesting_TimeBetweenStateFlips
     CycleThroughRelayStatesForTesting_TimeBetweenStateFlips = 1.0
 
@@ -257,11 +333,6 @@ if __name__ == '__main__':
 
     global CycleThroughRelayStatesForTesting_RelayStateToBeSet
     CycleThroughRelayStatesForTesting_RelayStateToBeSet = 1
-
-    global root
-
-    global GUI_RootAfterCallbackInterval_Milliseconds
-    GUI_RootAfterCallbackInterval_Milliseconds = 30
     #################################################
     #################################################
 
@@ -273,6 +344,7 @@ if __name__ == '__main__':
     RELAYS_OPEN_FLAG = -1
 
     global RELAYS_MostRecentDict
+    RELAYS_MostRecentDict = dict()
 
     global RELAYS_MostRecentDict_DigitalOutputsList_State
     RELAYS_MostRecentDict_DigitalOutputsList_State = [-1]*4
@@ -304,6 +376,9 @@ if __name__ == '__main__':
         time.sleep(0.5)  #Allow enough time for 'root' to be created that we can then pass it into other classes.
     else:
         root = None
+        Tab_MainControls = None
+        Tab_RELAYS = None
+        Tab_MyPrint = None
     #################################################
     #################################################
 
@@ -311,7 +386,7 @@ if __name__ == '__main__':
     #################################################
     global Phidgets4xRelayREL1000_ReubenPython2and3ClassObject_GUIparametersDict
     Phidgets4xRelayREL1000_ReubenPython2and3ClassObject_GUIparametersDict = dict([("USE_GUI_FLAG", USE_GUI_FLAG and SHOW_IN_GUI_RELAYS_FLAG),
-                                    ("root", root),
+                                    ("root", Tab_RELAYS),
                                     ("EnableInternal_MyPrint_Flag", 1),
                                     ("NumberOfPrintLines", 10),
                                     ("UseBorderAroundThisGuiObjectFlag", 0),
@@ -325,7 +400,7 @@ if __name__ == '__main__':
     global Phidgets4xRelayREL1000_ReubenPython2and3ClassObject_setup_dict
     Phidgets4xRelayREL1000_ReubenPython2and3ClassObject_setup_dict = dict([("GUIparametersDict", Phidgets4xRelayREL1000_ReubenPython2and3ClassObject_GUIparametersDict),
                                                                            ("VINT_DesiredSerialNumber", 620554), #CHANGE THIS TO MATCH YOUR UNIQUE VINT
-                                                                           ("VINT_DesiredPortNumber", 0), #CHANGE THIS TO MATCH YOUR UNIQUE VINT
+                                                                           ("VINT_DesiredPortNumber", 4), #CHANGE THIS TO MATCH YOUR UNIQUE VINT
                                                                            ("DesiredDeviceID", 81),
                                                                            ("WaitForAttached_TimeoutDuration_Milliseconds", 5000),
                                                                            ("NameToDisplay_UserSet", "Reuben's Test 4xRelay Rel1000_0"),
@@ -350,7 +425,7 @@ if __name__ == '__main__':
     if USE_MYPRINT_FLAG == 1:
 
         MyPrint_ReubenPython2and3ClassObject_GUIparametersDict = dict([("USE_GUI_FLAG", USE_GUI_FLAG and SHOW_IN_GUI_MYPRINT_FLAG),
-                                                                        ("root", root),
+                                                                        ("root", Tab_MyPrint),
                                                                         ("UseBorderAroundThisGuiObjectFlag", 0),
                                                                         ("GUI_ROW", GUI_ROW_MYPRINT),
                                                                         ("GUI_COLUMN", GUI_COLUMN_MYPRINT),
