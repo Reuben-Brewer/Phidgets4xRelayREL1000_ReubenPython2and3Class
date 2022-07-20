@@ -6,7 +6,7 @@ reuben.brewer@gmail.com,
 www.reubotics.com
 
 Apache 2 License
-Software Revision E, 07/18/2022
+Software Revision F, 07/19/2022
 
 Verified working on: Python 2.7, 3.8 for Windows 8.1, 10 64-bit and Raspberry Pi Buster (no Mac testing yet).
 '''
@@ -399,7 +399,7 @@ if __name__ == '__main__':
 
     global Phidgets4xRelayREL1000_ReubenPython2and3ClassObject_setup_dict
     Phidgets4xRelayREL1000_ReubenPython2and3ClassObject_setup_dict = dict([("GUIparametersDict", Phidgets4xRelayREL1000_ReubenPython2and3ClassObject_GUIparametersDict),
-                                                                           ("VINT_DesiredSerialNumber", 620554), #CHANGE THIS TO MATCH YOUR UNIQUE VINT
+                                                                           ("VINT_DesiredSerialNumber", -1), #-1 MEANS ANY SN, CHANGE THIS TO MATCH YOUR UNIQUE VINT
                                                                            ("VINT_DesiredPortNumber", 4), #CHANGE THIS TO MATCH YOUR UNIQUE VINT
                                                                            ("DesiredDeviceID", 81),
                                                                            ("WaitForAttached_TimeoutDuration_Milliseconds", 5000),
@@ -410,7 +410,6 @@ if __name__ == '__main__':
     if USE_RELAYS_FLAG == 1:
         try:
             Phidgets4xRelayREL1000_ReubenPython2and3ClassObject = Phidgets4xRelayREL1000_ReubenPython2and3Class(Phidgets4xRelayREL1000_ReubenPython2and3ClassObject_setup_dict)
-            time.sleep(0.25)
             RELAYS_OPEN_FLAG = Phidgets4xRelayREL1000_ReubenPython2and3ClassObject.OBJECT_CREATED_SUCCESSFULLY_FLAG
 
         except:
@@ -442,7 +441,6 @@ if __name__ == '__main__':
 
         try:
             MyPrint_ReubenPython2and3ClassObject = MyPrint_ReubenPython2and3Class(MyPrint_ReubenPython2and3ClassObject_setup_dict)
-            time.sleep(0.25)
             MYPRINT_OPEN_FLAG = MyPrint_ReubenPython2and3ClassObject.OBJECT_CREATED_SUCCESSFULLY_FLAG
 
         except:
@@ -482,7 +480,7 @@ if __name__ == '__main__':
         ###################################################
 
         ###################################################
-        if USE_RELAYS_FLAG == 1:
+        if RELAYS_OPEN_FLAG == 1:
 
             ##################### SET's
             if USE_CycleThroughRelayStatesForTesting_FLAG == 1:

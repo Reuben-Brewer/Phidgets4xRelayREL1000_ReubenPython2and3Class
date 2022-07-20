@@ -6,7 +6,7 @@ reuben.brewer@gmail.com
 www.reubotics.com
 
 Apache 2 License
-Software Revision E, 07/18/2022
+Software Revision F, 07/19/2022
 
 Verified working on: Python 2.7, 3.8 for Windows 8.1, 10 64-bit and Raspberry Pi Buster (no Mac testing yet).
 '''
@@ -16,6 +16,7 @@ __author__ = 'reuben.brewer'
 #########################################################
 import os
 import sys
+print("Python Version: " + sys.version)
 import platform
 import time
 import datetime
@@ -104,7 +105,7 @@ class Phidgets4xRelayREL1000_ReubenPython2and3Class(Frame): #Subclass the Tkinte
         self.DigitalOutputsList_ErrorCallbackFiredFlag = [-1.0] * self.NumberOfDigitalOutputs
 
         self.DigitalOutputsList_State = [-1] * self.NumberOfDigitalOutputs
-        self.DigitalOutputsList_State_NeedsToBeChangedFlag = [1] * self.NumberOfDigitalOutputs
+        self.DigitalOutputsList_State_NeedsToBeChangedFlag = [1] * self.NumberOfDigitalOutputs #unicorn
         self.DigitalOutputsList_State_ToBeSet = [0] * self.NumberOfDigitalOutputs
 
         self.MostRecentDataDict = dict()
@@ -295,8 +296,7 @@ class Phidgets4xRelayREL1000_ReubenPython2and3Class(Frame): #Subclass the Tkinte
             except:
                 print("Phidgets4xRelayREL1000_ReubenPython2and3Class __init__: Error, VINT_DesiredSerialNumber invalid.")
         else:
-            print("Phidgets4xRelayREL1000_ReubenPython2and3Class __init__: Error, must initialize object with 'VINT_DesiredSerialNumber' argument.")
-            return
+            self.VINT_DesiredSerialNumber = -1
 
         print("Phidgets4xRelayREL1000_ReubenPython2and3Class __init__: VINT_DesiredSerialNumber: " + str(self.VINT_DesiredSerialNumber))
         #########################################################
@@ -388,48 +388,29 @@ class Phidgets4xRelayREL1000_ReubenPython2and3Class(Frame): #Subclass the Tkinte
 
         #########################################################
         #########################################################
+        self.DigitalOutputsList_ListOfOnAttachCallbackFunctionNames = [self.DigitalOutput0onAttachCallback, self.DigitalOutput1onAttachCallback, self.DigitalOutput2onAttachCallback, self.DigitalOutput3onAttachCallback]
+        self.DigitalOutputsList_ListOfOnDetachCallbackFunctionNames = [self.DigitalOutput0onDetachCallback, self.DigitalOutput1onDetachCallback, self.DigitalOutput2onDetachCallback, self.DigitalOutput3onDetachCallback]
+        self.DigitalOutputsList_ListOfOnErrorCallbackFunctionNames = [self.DigitalOutput0onErrorCallback, self.DigitalOutput1onErrorCallback, self.DigitalOutput2onErrorCallback, self.DigitalOutput3onErrorCallback]
+        #########################################################
+        #########################################################
+
+        ######################################################### unicorn
+        #########################################################
         try:
 
             #########################################################
-            self.DigitalOutput0object = DigitalOutput()
-            self.DigitalOutputsList_PhidgetsDigitalOutputObjects.append(self.DigitalOutput0object)
-            self.DigitalOutput0object.setHubPort(self.VINT_DesiredPortNumber)
-            self.DigitalOutput0object.setDeviceSerialNumber(self.VINT_DesiredSerialNumber)
-            self.DigitalOutput0object.setChannel(0)
-            self.DigitalOutput0object.setOnAttachHandler(self.DigitalOutput0onAttachCallback)
-            self.DigitalOutput0object.setOnDetachHandler(self.DigitalOutput0onDetachCallback)
-            self.DigitalOutput0object.setOnErrorHandler(self.DigitalOutput0onErrorCallback)
-            self.DigitalOutput0object.openWaitForAttachment(self.WaitForAttached_TimeoutDuration_Milliseconds)
+            for DigitalOutputChannel in range(0, self.NumberOfDigitalOutputs):
+                self.DigitalOutputsList_PhidgetsDigitalOutputObjects.append(DigitalOutput())
+                self.DigitalOutputsList_PhidgetsDigitalOutputObjects[DigitalOutputChannel].setHubPort(self.VINT_DesiredPortNumber)
 
-            self.DigitalOutput1object = DigitalOutput()
-            self.DigitalOutputsList_PhidgetsDigitalOutputObjects.append(self.DigitalOutput1object)
-            self.DigitalOutput0object.setHubPort(self.VINT_DesiredPortNumber)
-            self.DigitalOutput1object.setDeviceSerialNumber(self.VINT_DesiredSerialNumber)
-            self.DigitalOutput1object.setChannel(1)
-            self.DigitalOutput1object.setOnAttachHandler(self.DigitalOutput1onAttachCallback)
-            self.DigitalOutput1object.setOnDetachHandler(self.DigitalOutput1onDetachCallback)
-            self.DigitalOutput1object.setOnErrorHandler(self.DigitalOutput1onErrorCallback)
-            self.DigitalOutput1object.openWaitForAttachment(self.WaitForAttached_TimeoutDuration_Milliseconds)
-            
-            self.DigitalOutput2object = DigitalOutput()
-            self.DigitalOutputsList_PhidgetsDigitalOutputObjects.append(self.DigitalOutput2object)
-            self.DigitalOutput0object.setHubPort(self.VINT_DesiredPortNumber)
-            self.DigitalOutput2object.setDeviceSerialNumber(self.VINT_DesiredSerialNumber)
-            self.DigitalOutput2object.setChannel(2)
-            self.DigitalOutput2object.setOnAttachHandler(self.DigitalOutput2onAttachCallback)
-            self.DigitalOutput2object.setOnDetachHandler(self.DigitalOutput2onDetachCallback)
-            self.DigitalOutput2object.setOnErrorHandler(self.DigitalOutput2onErrorCallback)
-            self.DigitalOutput2object.openWaitForAttachment(self.WaitForAttached_TimeoutDuration_Milliseconds)
-            
-            self.DigitalOutput3object = DigitalOutput()
-            self.DigitalOutputsList_PhidgetsDigitalOutputObjects.append(self.DigitalOutput3object)
-            self.DigitalOutput0object.setHubPort(self.VINT_DesiredPortNumber)
-            self.DigitalOutput3object.setDeviceSerialNumber(self.VINT_DesiredSerialNumber)
-            self.DigitalOutput3object.setChannel(3)
-            self.DigitalOutput3object.setOnAttachHandler(self.DigitalOutput3onAttachCallback)
-            self.DigitalOutput3object.setOnDetachHandler(self.DigitalOutput3onDetachCallback)
-            self.DigitalOutput3object.setOnErrorHandler(self.DigitalOutput3onErrorCallback)
-            self.DigitalOutput3object.openWaitForAttachment(self.WaitForAttached_TimeoutDuration_Milliseconds)
+                if self.VINT_DesiredSerialNumber != -1:
+                    self.DigitalOutputsList_PhidgetsDigitalOutputObjects[DigitalOutputChannel].setDeviceSerialNumber(self.VINT_DesiredSerialNumber)
+
+                self.DigitalOutputsList_PhidgetsDigitalOutputObjects[DigitalOutputChannel].setChannel(DigitalOutputChannel)
+                self.DigitalOutputsList_PhidgetsDigitalOutputObjects[DigitalOutputChannel].setOnAttachHandler(self.DigitalOutputsList_ListOfOnAttachCallbackFunctionNames[DigitalOutputChannel])
+                self.DigitalOutputsList_PhidgetsDigitalOutputObjects[DigitalOutputChannel].setOnDetachHandler(self.DigitalOutputsList_ListOfOnDetachCallbackFunctionNames[DigitalOutputChannel])
+                self.DigitalOutputsList_PhidgetsDigitalOutputObjects[DigitalOutputChannel].setOnErrorHandler(self.DigitalOutputsList_ListOfOnErrorCallbackFunctionNames[DigitalOutputChannel])
+                self.DigitalOutputsList_PhidgetsDigitalOutputObjects[DigitalOutputChannel].openWaitForAttachment(self.WaitForAttached_TimeoutDuration_Milliseconds)
             #########################################################
 
             self.PhidgetsDeviceConnectedFlag = 1
@@ -455,7 +436,7 @@ class Phidgets4xRelayREL1000_ReubenPython2and3Class(Frame): #Subclass the Tkinte
 
             #########################################################
             try:
-                self.DetectedDeviceName = self.DigitalOutput0object.getDeviceName()
+                self.DetectedDeviceName = self.DigitalOutputsList_PhidgetsDigitalOutputObjects[0].getDeviceName()
                 print("Phidgets4xRelayREL1000_ReubenPython2and3Class __init__: DetectedDeviceName: " + self.DetectedDeviceName)
 
             except PhidgetException as e:
@@ -464,7 +445,7 @@ class Phidgets4xRelayREL1000_ReubenPython2and3Class(Frame): #Subclass the Tkinte
 
             #########################################################
             try:
-                self.VINT_DetectedSerialNumber = self.DigitalOutput0object.getDeviceSerialNumber()
+                self.VINT_DetectedSerialNumber = self.DigitalOutputsList_PhidgetsDigitalOutputObjects[0].getDeviceSerialNumber()
                 print("Phidgets4xRelayREL1000_ReubenPython2and3Class __init__: VINT_DetectedSerialNumber: " + str(self.VINT_DetectedSerialNumber))
 
             except PhidgetException as e:
@@ -473,7 +454,7 @@ class Phidgets4xRelayREL1000_ReubenPython2and3Class(Frame): #Subclass the Tkinte
 
             #########################################################
             try:
-                self.VINT_DetectedPortNumber = self.DigitalOutput0object.getHubPort()
+                self.VINT_DetectedPortNumber = self.DigitalOutputsList_PhidgetsDigitalOutputObjects[0].getHubPort()
                 print("Phidgets4xRelayREL1000_ReubenPython2and3Class __init__: VINT_DetectedPortNumber: " + str(self.VINT_DetectedPortNumber))
 
             except PhidgetException as e:
@@ -482,7 +463,7 @@ class Phidgets4xRelayREL1000_ReubenPython2and3Class(Frame): #Subclass the Tkinte
 
             #########################################################
             try:
-                self.DetectedDeviceID = self.DigitalOutput0object.getDeviceID()
+                self.DetectedDeviceID = self.DigitalOutputsList_PhidgetsDigitalOutputObjects[0].getDeviceID()
                 print("Phidgets4xRelayREL1000_ReubenPython2and3Class __init__: DetectedDeviceID: " + str(self.DetectedDeviceID))
 
             except PhidgetException as e:
@@ -491,7 +472,7 @@ class Phidgets4xRelayREL1000_ReubenPython2and3Class(Frame): #Subclass the Tkinte
 
             #########################################################
             try:
-                self.DetectedDeviceVersion = self.DigitalOutput0object.getDeviceVersion()
+                self.DetectedDeviceVersion = self.DigitalOutputsList_PhidgetsDigitalOutputObjects[0].getDeviceVersion()
                 print("Phidgets4xRelayREL1000_ReubenPython2and3Class __init__: DetectedDeviceVersion: " + str(self.DetectedDeviceVersion))
 
             except PhidgetException as e:
@@ -500,7 +481,7 @@ class Phidgets4xRelayREL1000_ReubenPython2and3Class(Frame): #Subclass the Tkinte
 
             #########################################################
             try:
-                self.DetectedDeviceLibraryVersion = self.DigitalOutput0object.getLibraryVersion()
+                self.DetectedDeviceLibraryVersion = self.DigitalOutputsList_PhidgetsDigitalOutputObjects[0].getLibraryVersion()
                 print("Phidgets4xRelayREL1000_ReubenPython2and3Class __init__: DetectedDeviceLibraryVersion: " + str(self.DetectedDeviceLibraryVersion))
 
             except PhidgetException as e:
@@ -508,10 +489,11 @@ class Phidgets4xRelayREL1000_ReubenPython2and3Class(Frame): #Subclass the Tkinte
             #########################################################
 
             #########################################################
-            if self.VINT_DetectedSerialNumber != self.VINT_DesiredSerialNumber:
-                print("Phidgets4xRelayREL1000_ReubenPython2and3Class __init__: The desired VINT Serial Number (" + str(self.VINT_DesiredSerialNumber) + ") does not match the detected VINT Serial Number (" + str(self.VINT_DetectedSerialNumber) + ").")
-                input("Phidgets4xRelayREL1000_ReubenPython2and3Class __init__: Press any key (and enter) to exit.")
-                sys.exit()
+            if self.VINT_DesiredSerialNumber != -1:  # '-1' means we should open the device regardless os serial number.
+                if self.VINT_DetectedSerialNumber != self.VINT_DesiredSerialNumber:
+                    print("Phidgets4xRelayREL1000_ReubenPython2and3Class __init__: The desired VINT Serial Number (" + str(self.VINT_DesiredSerialNumber) + ") does not match the detected VINT Serial Number (" + str(self.VINT_DetectedSerialNumber) + ").")
+                    input("Phidgets4xRelayREL1000_ReubenPython2and3Class __init__: Press any key (and enter) to exit.")
+                    sys.exit()
             #########################################################
 
             #########################################################
@@ -526,6 +508,12 @@ class Phidgets4xRelayREL1000_ReubenPython2and3Class(Frame): #Subclass the Tkinte
                 print("Phidgets4xRelayREL1000_ReubenPython2and3Class __init__: The desired DesiredDeviceID (" + str(self.DesiredDeviceID) + ") does not match the detected Device ID (" + str(self.DetectedDeviceID) + ").")
                 input("Phidgets4xRelayREL1000_ReubenPython2and3Class __init__: Press any key (and enter) to exit.")
                 sys.exit()
+            #########################################################
+
+            #########################################################
+            # IN FW VERSION 120, WE HAVE TO SLEEP FOR AT LEAST 0.1-0.5SEC BEFORE ISSUING SETSTATE COMMANDS, OR ELSE WE GET ERRORS.
+            # NO SUCH PROBLEM IN FW VERSION 110.
+            time.sleep(0.5)
             #########################################################
 
             #########################################################
@@ -551,7 +539,13 @@ class Phidgets4xRelayREL1000_ReubenPython2and3Class(Frame): #Subclass the Tkinte
     #######################################################################################################################
     #######################################################################################################################
     def __del__(self):
-        pass
+
+        try:
+            pass
+
+        except PhidgetException as e:
+            print("Phidgets4xRelayREL1000_ReubenPython2and3Class __del__: Phidget Exception %i: %s" % (e.code, e.details))
+
     #######################################################################################################################
     #######################################################################################################################
 
@@ -868,8 +862,8 @@ class Phidgets4xRelayREL1000_ReubenPython2and3Class(Frame): #Subclass the Tkinte
 
         if self.EXIT_PROGRAM_FLAG == 0:
             self.MostRecentDataDict = dict([("DigitalOutputsList_State", self.DigitalOutputsList_State),
-                                                 ("DigitalOutputsList_ErrorCallbackFiredFlag", self.DigitalOutputsList_ErrorCallbackFiredFlag),
-                                                 ("Time", self.CurrentTime_CalculatedFromMainThread)])
+                                             ("DigitalOutputsList_ErrorCallbackFiredFlag", self.DigitalOutputsList_ErrorCallbackFiredFlag),
+                                             ("Time", self.CurrentTime_CalculatedFromMainThread)])
 
             return self.MostRecentDataDict
 
@@ -907,28 +901,38 @@ class Phidgets4xRelayREL1000_ReubenPython2and3Class(Frame): #Subclass the Tkinte
         self.StartingTime_CalculatedFromMainThread = self.getPreciseSecondsTimeStampString()
 
         ###############################################
+        ###############################################
+        ###############################################
         while self.EXIT_PROGRAM_FLAG == 0:
 
             ###############################################
+            ###############################################
             self.CurrentTime_CalculatedFromMainThread = self.getPreciseSecondsTimeStampString() - self.StartingTime_CalculatedFromMainThread
             ###############################################
+            ###############################################
 
+            ############################################### unicorn
             ###############################################
             for DigitalOutputChannel in range(0, self.NumberOfDigitalOutputs):
 
                 if self.DigitalOutputsList_State_NeedsToBeChangedFlag[DigitalOutputChannel] == 1:
 
+                    ###############################################
                     self.DigitalOutputsList_PhidgetsDigitalOutputObjects[DigitalOutputChannel].setState(self.DigitalOutputsList_State_ToBeSet[DigitalOutputChannel])
+                    ###############################################
+
                     time.sleep(0.002)
 
+                    ###############################################
                     self.DigitalOutputsList_State[DigitalOutputChannel] = self.DigitalOutputsList_PhidgetsDigitalOutputObjects[DigitalOutputChannel].getState()
                     if self.DigitalOutputsList_State[DigitalOutputChannel] == self.DigitalOutputsList_State_ToBeSet[DigitalOutputChannel]:
                         self.DigitalOutputsList_State_NeedsToBeChangedFlag[DigitalOutputChannel] = 0
+                    ###############################################
 
+            ###############################################
             ###############################################
 
             ############################################### USE THE TIME.SLEEP() TO SET THE LOOP FREQUENCY
-            ###############################################
             ###############################################
             self.UpdateFrequencyCalculation_MainThread()
 
@@ -937,13 +941,18 @@ class Phidgets4xRelayREL1000_ReubenPython2and3Class(Frame): #Subclass the Tkinte
 
             ###############################################
             ###############################################
-            ###############################################
 
         ###############################################
+        ###############################################
+        ###############################################
 
+        ###############################################
+        ###############################################
         ###############################################
         for DigitalOutputChannel in range(0, self.NumberOfDigitalOutputs):
             self.DigitalOutputsList_PhidgetsDigitalOutputObjects[DigitalOutputChannel].close()
+        ###############################################
+        ###############################################
         ###############################################
 
         self.MyPrint_WithoutLogFile("Finished MainThread for Phidgets4xRelayREL1000_ReubenPython2and3Class object.")
