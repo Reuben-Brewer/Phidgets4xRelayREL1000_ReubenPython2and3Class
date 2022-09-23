@@ -6,15 +6,15 @@ Wrapper (including ability to hook to Tkinter GUI) to control Phidgets four-rela
 
 From Phidgets' website:
 
-"The REL1000 is a mechanical relay that will let you control the power circuits of as many as four separate devices.
-This Phidget connects to your computer through a VINT Hub. Control up to four separate devices.
+"The REL1000 is a mechanical relay that will let you control the power circuits of as many as four separate devices. This Phidget connects to your computer through a VINT Hub.
+
+Control up to four separate devices.
 
 Rated for 210W of DC power or 1750 VA of AC power.
 
 DC applications - switch a circuit of up to 30V at 7A.
 
 AC applications - switch up to 12A or 277V AC, as long as the total power doesn't exceed 1750 VA.
-
 Requires external Power supply.
 
 Isolation - A voltage spike on the load side of the relay will not damage the control side."
@@ -33,7 +33,7 @@ www.reubotics.com
 
 Apache 2 License
 
-Software Revision G, 08/29/2022
+Software Revision H, 09/21/2022
 
 Verified working on: 
 
